@@ -52,6 +52,7 @@ public class ElasticSearchClientAppender extends AppenderSkeleton {
     private String elasticIndex = getInitialIndex();
     private String elasticType = "logging";
     private String elasticHost = "http://localhost:9200";
+    private String contentType = "application/json";
 
     protected String getInitialHostname() {
         String host = "localhost";
@@ -273,7 +274,11 @@ public class ElasticSearchClientAppender extends AppenderSkeleton {
                     writeThrowable(data, loggingEvent);
                     writeMDC(data, loggingEvent);
                     // insert the document into elasticsearch
-                    Index index = new Index.Builder(data).index(getElasticIndex()).type(getElasticType()).id(uuid).build();
+                    Index index = new Index.Builder(data)
+                      .index(getElasticIndex())
+                      .setHeader("Content-Type", contentType)
+                      .type(getElasticType())
+                      .id(uuid).build();
                     client.execute(index);
                 }
             } catch (Exception ex) {
